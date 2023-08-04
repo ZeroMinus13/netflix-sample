@@ -70,7 +70,7 @@ function Home() {
       </div>
       <div className='flex flex-col sm:flex-row gap-5 justify-center items-center'>
         <form
-          onSubmit={async (e) => {
+          onSubmit={(e) => {
             e.preventDefault(), setCurrentTitle(text);
           }}
         >

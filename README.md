@@ -1,1 +1,1 @@
-Made with NextJS,TailwindCSS, Typescript, Prisma(MongoDB).
+Made with NextJS, TailwindCSS, Typescript, Prisma(MongoDB).

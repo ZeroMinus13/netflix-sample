@@ -25,17 +25,6 @@ function Buttons({
         Previous
       </button>
 
-      {/* <select
-        className='bg-black text-white rounded-lg w-fit text-right'
-        value={currentPage}
-        onChange={(e) => handlePageChange(+e.target.value)}
-      >
-        {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => (
-          <option key={page} value={page} className=''>
-            {page}
-          </option>
-        ))}
-      </select> */}
       <div className='text-center'>
         {Array.from(Array(totalPages).keys())
           .slice(Math.max(currentPage - 4, 0), Math.min(currentPage + 3, totalPages))
