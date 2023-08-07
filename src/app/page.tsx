@@ -7,6 +7,7 @@ import { movies } from '@prisma/client';
 import { useRouter, useSearchParams } from 'next/navigation';
 import querystring from 'querystring';
 import { genreValue } from './lib/helper';
+import Loading from './components/Loading';
 
 function Home() {
   const urlParams = useSearchParams();
@@ -19,16 +20,20 @@ function Home() {
   const [text, setText] = useState('');
   const [title, setCurrentTitle] = useState('');
   const [error, setError] = useState(false);
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setLoading(true);
         const { moviesList, totalPages } = await fetchMovies(currentPage, limit, genre, title);
         setMovies(moviesList);
         setTotalPages(totalPages);
       } catch (err) {
         if (err instanceof Error) setError(true);
+      } finally {
+        setLoading(false);
       }
     };
     fetchData();
@@ -100,41 +105,45 @@ function Home() {
       </div>
 
       <Buttons {...{ currentPage, totalPages, handlePageChange, setCurrentPage }} />
-
-      <div className='grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-3 gap-2 sm:gap-5'>
-        {!error ? (
-          movies.map((movie) => (
-            <div
-              key={movie.id}
-              className='flex flex-col items-center gap-5 bg-slate-700 rounded-lg shadow-2xl ring-2 p-5  text-white cursor-pointer hover:bg-slate-800 min-w-fit'
-              onClick={() => router.push(`/movie/${movie.id}`)}
-            >
-              <p className='font-semibold text-2xl'>{movie.title}</p>
-              <p className='text-sm'>{movie?.plot}</p>
-              <p className='text-sm'>
-                <b>Genres</b> {movie?.genres.join(', ')}
-              </p>
-              {movie?.poster ? (
-                <Image
-                  src={movie?.poster}
-                  alt={movie?.title}
-                  className='w-40 object-contain rounded-lg '
-                  width={300}
-                  height={300}
-                  placeholder='blur'
-                  blurDataURL='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mM8cuRFPQAHtQLxfqSEPgAAAABJRU5ErkJggg=='
-                />
-              ) : (
-                <p className='italic text-red-300'>No image found</p>
-              )}
-            </div>
-          ))
-        ) : (
-          <p className='text-red-500 text-4xl bg-slate-700 p-5 rounded-lg text-center w-screen'>
-            Error Loading Database, Please try again Later.
-          </p>
-        )}
-      </div>
+      <p className='text-center'>You can also you keyboard arrow keys to change pages.</p>
+      {loading ? (
+        <Loading />
+      ) : (
+        <div className='grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-3 gap-2 sm:gap-5'>
+          {!error ? (
+            movies.map((movie) => (
+              <div
+                key={movie.id}
+                className='flex flex-col items-center gap-5 bg-slate-700 rounded-lg shadow-2xl ring-2 p-5  text-white cursor-pointer hover:bg-slate-800 min-w-fit'
+                onClick={() => router.push(`/movie/${movie.id}`)}
+              >
+                <p className='font-semibold text-2xl'>{movie.title}</p>
+                <p className='text-sm'>{movie?.plot}</p>
+                <p className='text-sm'>
+                  <b>Genres</b> {movie?.genres.join(', ')}
+                </p>
+                {movie?.poster ? (
+                  <Image
+                    src={movie?.poster}
+                    alt={movie?.title}
+                    className='w-40 object-contain rounded-lg '
+                    width={300}
+                    height={300}
+                    placeholder='blur'
+                    blurDataURL='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mM8cuRFPQAHtQLxfqSEPgAAAABJRU5ErkJggg=='
+                  />
+                ) : (
+                  <p className='italic text-red-300'>No image found</p>
+                )}
+              </div>
+            ))
+          ) : (
+            <p className='text-red-500 text-4xl bg-slate-700 p-5 rounded-lg text-center w-full'>
+              Error Loading Database, Please try again Later.
+            </p>
+          )}
+        </div>
+      )}
       <Buttons {...{ currentPage, totalPages, handlePageChange, setCurrentPage }} />
     </div>
   );
