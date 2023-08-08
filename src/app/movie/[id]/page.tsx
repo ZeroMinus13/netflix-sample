@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { movies, comments } from '@prisma/client';
+import { movies } from '@prisma/client';
 import { fetchMovie, nextMovie, prevMovie } from '../../api/actions';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
@@ -11,7 +11,6 @@ function Movie({ params }: { params: { id: string } }) {
   const [movie, setMovie] = useState<movies | null>(null);
   const [next, setNext] = useState<movies['id'] | null>(null);
   const [prev, setPrev] = useState<movies['id'] | null>(null);
-
   const [ID, setId] = useState(params.id);
 
   const router = useRouter();
@@ -70,19 +69,41 @@ function Movie({ params }: { params: { id: string } }) {
         if (e.key === 'ArrowLeft' && prev) routing(prev);
       }}
     >
-      <button
-        onClick={() => router.push('/')}
-        className='bg-blue-200 text-slate-800 p-2 px-5 mt-5 ml-16 rounded-lg font-bold hover:bg-blue-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed active:bg-blue-500'
-      >
-        BACK
-      </button>
       <div className='text-center bg-gray-800'>
-        <h2 className='text-4xl p-5 lg:p-10'>{movie?.title}</h2>
-        <p className='bg-slate-700 rounded-lg p-5 lg:p-10'>{movie.fullplot ? movie.fullplot : movie.plot}</p>
+        <button
+          onClick={() => router.back()}
+          className='absolute left-0 bg-blue-200 text-slate-800 p-1 px-5 mt-5 ml-10 rounded-lg font-bold hover:bg-blue-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed active:bg-blue-500'
+        >
+          BACK
+        </button>
+        <h2 className='text-4xl pt-16 pb-5'>{movie.title}</h2>
+
+        <p className='bg-slate-700 rounded-lg p-3 lg:p-10'>{movie.fullplot ? movie.fullplot : movie.plot}</p>
         <div className=''>
           <div className='flex flex-col gap-2 p-10'>
-            <b>Directors</b> {movie.directors.join(', ')}
-            <b>Genres</b> {movie?.genres.join(', ')}
+            <b>Directors</b>
+            {movie.directors.map((director, i) => (
+              <button
+                key={i}
+                className='underline hover:font-bold inline'
+                onClick={() => {
+                  const encodedDirector = encodeURIComponent(director);
+                  router.push(`/?currentPage=1&limit=10&genre=All&director=${encodedDirector}`);
+                }}
+              >
+                {director}
+              </button>
+            ))}
+            <b>Genres</b>
+            {movie.genres.map((genre, i) => (
+              <button
+                key={i}
+                className='underline hover:font-bold inline'
+                onClick={() => router.push(`/?currentPage=1&limit=10&genre=${genre}`)}
+              >
+                {genre}
+              </button>
+            ))}
             <b>Cast</b> {movie.cast.join(', ')}
             <b>Release Date </b> {movie.released?.toDateString()}
             <b>Length </b> {movie.runtime} minutes.
