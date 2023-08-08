@@ -1,6 +1,5 @@
 'use server';
 import prisma from '../lib/prisma';
-import { cache } from 'react';
 
 async function fetchMovies(page: number, limit: number, genreParams?: string, textParams?: string, director?: string) {
   const currentPage = page ?? 1;

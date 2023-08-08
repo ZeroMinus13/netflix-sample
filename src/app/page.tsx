@@ -4,7 +4,7 @@ import Buttons from './components/Buttons';
 import Image from 'next/image';
 import { fetchMovies } from './api/actions';
 import { movies } from '@prisma/client';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import querystring from 'querystring';
 import { genreValue } from './lib/helper';
 import Loading from './components/Loading';
@@ -143,7 +143,7 @@ function Home() {
               <p className='font-semibold text-2xl'>{movie.title}</p>
               <p className='text-sm'>{movie?.plot}</p>
               <p className='text-sm'>
-                <b>Genres</b> {movie?.genres.join(', ')}
+                <b>Genres:</b> {movie?.genres.join(', ')}
               </p>
               {movie?.poster ? (
                 <Image
