@@ -4,8 +4,8 @@ import { movies } from '@prisma/client';
 import { fetchMovie, nextMovie, prevMovie } from '../../api/actions';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { ArrowBigLeft, ArrowBigRightIcon } from 'lucide-react';
 import Loading from '@/app/loading';
+import { LeftArrow, RightArrow } from './components/LeftnRight';
 
 function Movie({ params }: { params: { id: string } }) {
   const [movie, setMovie] = useState<movies | null>(null);
@@ -21,16 +21,12 @@ function Movie({ params }: { params: { id: string } }) {
         const data = await fetchMovie(ID);
         const nextM = await nextMovie(ID);
         const prevM = await prevMovie(ID);
-
         if (data) {
           setMovie(data);
           setId(ID);
-
           router.replace(ID);
         }
-
         if (nextM?.id) setNext(nextM.id);
-
         if (prevM?.id) setPrev(prevM.id);
       } catch (error) {
         return;
@@ -39,35 +35,18 @@ function Movie({ params }: { params: { id: string } }) {
     fetchData();
   }, [ID, router]);
 
-  const rightArr = (
-    <button
-      onClick={() => next && routing(next)}
-      disabled={!next}
-      className='cursor-pointer disabled:opacity-10 disabled:cursor-not-allowed'
-    >
-      <ArrowBigRightIcon size={40} className='transition duration-500 hover:scale-110  hover:text-blue-500' />
-    </button>
-  );
-  const leftArr = (
-    <button
-      onClick={() => prev && routing(prev)}
-      disabled={!prev}
-      className='cursor-pointer disabled:opacity-10 disabled:cursor-not-allowed'
-    >
-      <ArrowBigLeft size={40} className='transition duration-500 hover:scale-110  hover:text-blue-500 ' />
-    </button>
-  );
   const routing = (id: string) => router.replace(`/movie/${id}`);
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === 'ArrowRight' && next) routing(next);
+    if (e.key === 'ArrowLeft' && prev) routing(prev);
+  };
 
   if (!movie) return <Loading />;
   return (
     <div
-      className='w-full min-h-screen text-white bg-slate-800 overflow-x-hidden'
+      className='min-h-screen text-white bg-slate-800 overflow-x-hidden'
       tabIndex={0}
-      onKeyDown={(e) => {
-        if (e.key === 'ArrowRight' && next) routing(next);
-        if (e.key === 'ArrowLeft' && prev) routing(prev);
-      }}
+      onKeyDown={(e) => handleKeyDown(e)}
     >
       <div className='text-center bg-gray-800'>
         <button
@@ -76,16 +55,16 @@ function Movie({ params }: { params: { id: string } }) {
         >
           BACK
         </button>
-        <h2 className='text-4xl pt-16 pb-5'>{movie.title}</h2>
-
+        <h1 className='text-4xl pt-16 pb-5'>{movie.title}</h1>
         <p className='bg-slate-700 rounded-lg p-3 lg:p-10'>{movie.fullplot ? movie.fullplot : movie.plot}</p>
-        <div className=''>
-          <div className='flex flex-col gap-2 p-10'>
+
+        <div className='flex flex-col gap-2 p-10'>
+          <div>
             <b>Directors</b>
             {movie.directors.map((director, i) => (
               <button
                 key={i}
-                className='underline hover:font-bold inline'
+                className='underline hover:font-bold block mx-auto'
                 onClick={() => {
                   const encodedDirector = encodeURIComponent(director);
                   router.push(`/?currentPage=1&limit=10&genre=All&director=${encodedDirector}`);
@@ -94,45 +73,59 @@ function Movie({ params }: { params: { id: string } }) {
                 {director}
               </button>
             ))}
+          </div>
+          <div>
             <b>Genres</b>
+
             {movie.genres.map((genre, i) => (
               <button
                 key={i}
-                className='underline hover:font-bold inline'
+                className='underline hover:font-bold block mx-auto'
                 onClick={() => router.push(`/?currentPage=1&limit=10&genre=${genre}`)}
               >
                 {genre}
               </button>
             ))}
-            <b>Cast</b> {movie.cast.join(', ')}
-            <b>Release Date </b> {movie.released?.toDateString()}
-            <b>Length </b> {movie.runtime} minutes.
-            <div className='flex flex-col gap-2'>
-              <div className='flex flex-row justify-between items-center'>
-                {leftArr}
-                <h6 className='text-2xl'> Based on IMDB </h6>
-                {rightArr}
-              </div>
-              <p> Ratings : {movie.imdb.rating?.toString()}</p>
-              <p> Votes : {movie.imdb.votes?.toString()}</p>
-            </div>
           </div>
-          <div className='flex justify-center bg-black w-full'>
-            {movie.poster ? (
-              <Image
-                alt={movie?.title}
-                src={movie?.poster}
-                width={600}
-                height={600}
-                className='w-fit object-cover'
-                placeholder='blur'
-                blurDataURL='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mM8cuRFPQAHtQLxfqSEPgAAAABJRU5ErkJggg=='
-              />
-            ) : (
-              <p className='text-2xl text-red-500 p-5 h-full'>No image found.</p>
-            )}
+          <p>
+            <b className='block'>Cast</b> {movie.cast.join(', ')}
+          </p>
+          <p>
+            <b>Release Date </b> {movie.released?.toDateString()}
+          </p>
+          <p>
+            <b>Length </b> {movie.runtime} minutes.
+          </p>
+          <p>
+            <b>Rated </b> {movie?.rated}
+          </p>
+          <p>
+            <b>Languages</b> {movie.languages}
+          </p>
+          <div className='flex flex-col gap-2'>
+            <div className='flex flex-row justify-between items-center'>
+              <LeftArrow {...{ prev, routing }} />
+              <h6 className='text-2xl'> Based on IMDB </h6>
+              <RightArrow {...{ next, routing }} />
+            </div>
+            <p> Ratings : {movie.imdb.rating?.toString()}</p>
+            <p> Votes : {movie.imdb.votes?.toString()}</p>
           </div>
         </div>
+
+        {movie.poster ? (
+          <Image
+            alt={movie?.title}
+            src={movie?.poster}
+            width={600}
+            height={600}
+            className='w-fit object-cover mx-auto'
+            placeholder='blur'
+            blurDataURL='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mM8cuRFPQAHtQLxfqSEPgAAAABJRU5ErkJggg=='
+          />
+        ) : (
+          <p className='text-2xl bg-slate-900 text-red-500 p-5 h-full'>No image found.</p>
+        )}
       </div>
     </div>
   );

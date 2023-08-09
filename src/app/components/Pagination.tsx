@@ -27,7 +27,7 @@ function Buttons({
 
       <div className='text-center'>
         {Array.from(Array(totalPages).keys())
-          .slice(Math.max(currentPage - 4, 0), Math.min(currentPage + 3, totalPages))
+          .slice(Math.max(currentPage - 4, 0), Math.min(currentPage + 4, totalPages))
           .map((i) => (
             <span key={i} className='p-2'>
               <button

@@ -54,21 +54,22 @@ export async function fetchCommentsForMovie(id: string) {
 }
 
 async function nextMovie(id: string) {
-  const nextMovie = await prisma.movies.findMany({
-    take: 1,
+  const nextMovie = await prisma.movies.findFirst({
     where: { id: { gt: id } },
     orderBy: { id: 'asc' },
   });
-  return nextMovie[0];
+
+  return nextMovie;
 }
 
 async function prevMovie(id: string) {
-  const nextMovie = await prisma.movies.findMany({
+  const nextMovie = await prisma.movies.findFirst({
     take: 1,
     where: { id: { lt: id } },
-    orderBy: { id: 'asc' },
+    orderBy: { id: 'desc' },
   });
-  return nextMovie[0];
+
+  return nextMovie;
 }
 
 export { fetchMovies, fetchMovie, nextMovie, prevMovie };

@@ -1,12 +1,12 @@
 export default function Loading() {
   return (
-    <div className='flex gap-5 justify-center items-center h-screen text-4xl lg:text-5xl'>
+    <div className='flex gap-5 justify-center items-center h-screen text-4xl lg:text-5xl bg-slate-800'>
       <span className='bg-gradient-to-r from-blue-100 to-purple-400 text-transparent bg-clip-text animate-pulse py-10'>
         Loading...
       </span>
       <svg
         aria-hidden='true'
-        className='animate-spin fill-slate-800 text-slate-200 dark:text-slate-600'
+        className='animate-spin fill-purple-600 text-slate-200 dark:text-slate-600'
         viewBox='0 0 100 101'
         fill='none'
         xmlns='http://www.w3.org/2000/svg'
